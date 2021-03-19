@@ -50,21 +50,21 @@ text(learner$model, use.n = TRUE, cex = 0.8)
 prediction <- learner$predict(task_bank,row_ids = test_data)
 print(prediction)
 head(as.data.table(prediction))
-measure = msr("classif.acc")
+measure <- msr("classif.acc")
 prediction$score(measure)
 require(precrec)
 autoplot(prediction, type = "roc")
 #optimization
 library("paradox")
 library("mlr3tuning")
-search_space = ps(
+search_space <- ps(
   cp = p_dbl(lower = 0.001, upper = 0.1),
   minsplit = p_int(lower = 1, upper = 10)
 )
-terminator = trm("evals", n_evals = 10)
-tuner = tnr("random_search")
+terminator <- trm("evals", n_evals = 10)
+tuner <- tnr("random_search")
 
-at = AutoTuner$new(
+at <- AutoTuner$new(
   learner = learner,
   resampling = rsmp("holdout"),
   measure = msr("classif.ce"),
@@ -72,18 +72,18 @@ at = AutoTuner$new(
   terminator = terminator,
   tuner = tuner
 )
-grid = benchmark_grid(
+grid <- benchmark_grid(
   task = task_bank,
   learner = list(at, lrn("classif.rpart")),
   resampling = rsmp("cv", folds = 3)
 )
-logger = lgr::get_logger("bbotk")
+logger <- lgr::get_logger("bbotk")
 logger$set_threshold("warn")
-bmr = benchmark(grid)
+bmr <- benchmark(grid)
 bmr$aggregate(msrs(c("classif.ce", "classif.acc",'classif.fpr','classif.fnr')))
 t <- at$train(task_bank,row_ids = train_data)
 p <- at$predict(task_bank,row_ids = test_data)
-measure = msr("classif.acc")
+measure <- msr("classif.acc")
 p$score(measure)
 autoplot(prediction, type = "roc")
 autoplot(p,type = 'roc')
